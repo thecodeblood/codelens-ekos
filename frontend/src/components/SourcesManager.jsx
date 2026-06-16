@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Plus, Upload, Link as LinkIcon, RefreshCw, Github } from 'lucide-react';
+import { Database, Plus, Upload, Link as LinkIcon, RefreshCw, GitBranch } from 'lucide-react';
 import { getSources, addSource, uploadDocument, triggerIngestion } from '../api';
 
 const SourcesManager = () => {
@@ -112,7 +112,7 @@ const SourcesManager = () => {
                 <div key={source.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '8px' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
-                      {source.type === 'github' ? <Github size={16} /> : <LinkIcon size={16} />}
+                      {source.type === 'github' ? <GitBranch size={16} /> : <LinkIcon size={16} />}
                       {source.name}
                     </div>
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
