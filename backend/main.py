@@ -26,10 +26,14 @@ async def lifespan(app: FastAPI):
     registry = CanonicalEntityRegistry(system_model.conn)
     evidence_tracker = EvidenceTracker(system_model.conn)
     
+    # Initialize LLM Client
+    from .understanding.llm import LLMClient
+    llm_client = LLMClient(settings)
+    
     # Initialize Ingestion Components
     model_builder = ModelBuilder(system_model, registry, evidence_tracker)
     change_detector = ChangeDetector(system_model.conn)
-    coordinator = PipelineCoordinator(system_model, model_builder, change_detector)
+    coordinator = PipelineCoordinator(system_model, model_builder, change_detector, llm_client)
     
     # Add to app state
     app.state.settings = settings

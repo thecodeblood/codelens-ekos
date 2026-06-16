@@ -4,6 +4,7 @@ import SearchBox from './components/SearchBox';
 import DiagramViewer from './components/DiagramViewer';
 import CitationsList from './components/CitationsList';
 import Dashboard from './components/Dashboard';
+import SourcesManager from './components/SourcesManager';
 import { executeQuery } from './api';
 
 function App() {
@@ -42,7 +43,12 @@ function App() {
         </p>
       </header>
 
-      {!result && !isLoading && <Dashboard />}
+      {!result && !isLoading && (
+        <>
+          <SourcesManager />
+          <Dashboard />
+        </>
+      )}
 
       <SearchBox onSearch={handleSearch} isLoading={isLoading} />
 

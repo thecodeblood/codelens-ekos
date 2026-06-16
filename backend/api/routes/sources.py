@@ -11,7 +11,9 @@ import uuid
 from datetime import datetime, timezone
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status, UploadFile, File
+import os
+import shutil
 
 from backend.config import Settings
 from backend.models.schemas import (
@@ -373,5 +375,51 @@ async def delete_source(
 
         logger.info("Deleted source %s and associated ingestion runs", source_id)
         return {"detail": "deleted"}
+    finally:
+        conn.close()
+
+
+@router.post(
+    "/upload",
+    response_model=SourceResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Upload a document",
+)
+async def upload_document(
+    file: UploadFile = File(...),
+    db_path: str = Depends(_get_db_path),
+) -> SourceResponse:
+    docs_dir = os.path.join(os.path.dirname(db_path), "docs")
+    os.makedirs(docs_dir, exist_ok=True)
+    
+    file_path = os.path.join(docs_dir, file.filename)
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    source_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc).isoformat()
+    name = file.filename
+    
+    source_type = "pdf" if name.lower().endswith(".pdf") else "local"
+
+    conn = sqlite3.connect(db_path)
+    try:
+        conn.execute(
+            "INSERT INTO sources (id, type, uri, name, status, created_at, updated_at) "
+            "VALUES (?, ?, ?, ?, 'registered', ?, ?)",
+            (source_id, source_type, file_path, name, now, now),
+        )
+        conn.commit()
+
+        logger.info("Registered uploaded source '%s' with id %s", name, source_id)
+
+        return SourceResponse(
+            id=source_id,
+            type=source_type,
+            uri=file_path,
+            name=name,
+            status="registered",
+            last_ingested=None,
+        )
     finally:
         conn.close()

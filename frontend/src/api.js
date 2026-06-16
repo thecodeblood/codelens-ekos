@@ -29,4 +29,30 @@ export const getModelQuality = async () => {
   }
 };
 
+export const getSources = async () => {
+  const response = await api.get('/sources');
+  return response.data;
+};
+
+export const addSource = async (type, uri, name) => {
+  const response = await api.post('/sources', { type, uri, name });
+  return response.data;
+};
+
+export const uploadDocument = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post('/sources/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+export const triggerIngestion = async (sourceId) => {
+  const response = await api.post(`/sources/${sourceId}/ingest`);
+  return response.data;
+};
+
 export default api;

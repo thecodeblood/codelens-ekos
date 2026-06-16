@@ -23,8 +23,8 @@ class AddSourceRequest(BaseModel):
         name: Optional human-readable name. Derived from URI if omitted.
     """
 
-    type: str = Field(..., description="Source type, e.g. 'git'")
-    uri: str = Field(..., description="Path or URL to the source repository")
+    type: str = Field(..., description="Source type, e.g. 'git', 'local', 'github', 'web', 'pdf'")
+    uri: str = Field(..., description="Path or URL to the source repository or document")
     name: str | None = Field(default=None, description="Optional display name for the source")
 
 
