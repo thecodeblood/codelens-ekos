@@ -11,13 +11,21 @@ router = APIRouter(prefix="/api/v1/query", tags=["Query & Reasoning"])
 class QueryRequest(BaseModel):
     query: str
 
+class Bullet(BaseModel):
+    label: str
+    body: str
+
+class CodeBlock(BaseModel):
+    language: str
+    title: str
+    code: str
+
 class QueryResponse(BaseModel):
-    query: str
-    intent: str
-    markdown: str
-    diagram: str
-    citations: list[dict]
-    plan_steps: list[dict]
+    heading: str
+    text: str
+    bullets: list[Bullet] | None = None
+    codeBlock: CodeBlock | None = None
+    relatedServices: list[str] | None = None
 
 def get_query_engine(request: Request, model=Depends(_get_model)):
     registry = CanonicalEntityRegistry(model.conn)

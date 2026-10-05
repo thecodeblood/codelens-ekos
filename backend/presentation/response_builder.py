@@ -54,17 +54,33 @@ class ResponseBuilder:
                 all_nodes_referenced.extend(res.get("neighbors", []))
                 raw_context_for_llm.append({"step": step.operation, "neighbors_count": len(res.get("neighbors", []))})
 
-        # Synthesize markdown using LLM if available
+        # Synthesize using LLM if available
         if self.llm and self.llm.is_enabled():
-            system_prompt = "You are a senior software architect. Summarize the graph traversal results into a beautiful, concise markdown narrative answering the user's query. The context provided is a summary of the operations performed on the graph database."
-            user_prompt = f"User Query: {plan.query}\nGraph Results: {json.dumps(raw_context_for_llm)}\n\nPlease provide a short markdown response."
-            narrative = self.llm.generate(system_prompt, user_prompt)
-            if narrative:
-                markdown = narrative
+            system_prompt = \"\"\"You are a senior software architect responding to a query about a codebase.
+Analyze the Graph Results and output a structured JSON response matching this schema exactly:
+{
+  "heading": "A short summary title (string)",
+  "text": "Detailed explanation answering the query (string)",
+  "bullets": [{"label": "short label", "body": "description"}],
+  "codeBlock": {"language": "cypher", "title": "Query or File", "code": "code content"} (optional),
+  "relatedServices": ["ServiceA", "ServiceB"] (optional)
+}
+\"\"\"
+            user_prompt = f"User Query: {plan.query}\nGraph Results: {json.dumps(raw_context_for_llm)}"
+            narrative = self.llm.generate_json(system_prompt, user_prompt)
+            
+            heading = narrative.get("heading", "Query Results")
+            text = narrative.get("text", "No detailed information found.")
+            bullets = narrative.get("bullets", [])
+            codeBlock = narrative.get("codeBlock")
+            relatedServices = narrative.get("relatedServices", [])
         else:
             # Fallback
-            for item in raw_context_for_llm:
-                markdown += f"- **{item['step']}**: {item}\n"
+            heading = f"Query Plan Executed: {plan.intent.value}"
+            text = "The LLM is currently disabled. Raw execution plan context follows:"
+            bullets = [{"label": item.get("step", "Step"), "body": str(item)} for item in raw_context_for_llm]
+            codeBlock = None
+            relatedServices = []
 
         seen_ids = set()
         unique_nodes = []
@@ -75,11 +91,14 @@ class ResponseBuilder:
                 
         citations = self.citation_builder.build_citations(unique_nodes)
         
+        # We can still pass the diagram as a code block if the LLM didn't provide one
+        if diagram and not codeBlock:
+            codeBlock = {"language": "mermaid", "title": "Architecture Flow", "code": diagram}
+            
         return {
-            "query": plan.query,
-            "intent": plan.intent.value,
-            "markdown": markdown,
-            "diagram": diagram,
-            "citations": citations,
-            "plan_steps": [s.model_dump() for s in plan.steps]
+            "heading": heading,
+            "text": text,
+            "bullets": bullets,
+            "codeBlock": codeBlock,
+            "relatedServices": relatedServices
         }

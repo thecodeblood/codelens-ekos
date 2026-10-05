@@ -27,12 +27,16 @@ class LLMClient:
     def is_enabled(self) -> bool:
         return self.client is not None
 
-    def generate(self, system_prompt: str, user_prompt: str, temperature: float = 0.2) -> str:
+    def generate(self, system_prompt: str, user_prompt: str, temperature: float = 1.0) -> str:
         """Generates a text response from the LLM."""
         if not self.is_enabled():
             return ""
             
         try:
+            extra_body = {}
+            if "nemotron" in self.settings.llm_model.lower():
+                extra_body = {"chat_template_kwargs": {"enable_thinking": True}, "reasoning_budget": 16384}
+
             completion = self.client.chat.completions.create(
                 model=self.settings.llm_model,
                 messages=[
@@ -40,7 +44,9 @@ class LLMClient:
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=temperature,
-                max_tokens=1024,
+                max_tokens=16384,
+                top_p=0.95,
+                extra_body=extra_body,
                 stream=False
             )
             return completion.choices[0].message.content
@@ -48,17 +54,19 @@ class LLMClient:
             logger.error(f"LLM generation failed: {e}")
             return ""
 
-    def generate_json(self, system_prompt: str, user_prompt: str, temperature: float = 0.1) -> dict:
+    def generate_json(self, system_prompt: str, user_prompt: str, temperature: float = 1.0) -> dict:
         """Generates a JSON response from the LLM. 
-        Expects the LLM to return valid JSON (NVIDIA models might need explicit instructions)."""
+        Expects the LLM to return valid JSON."""
         if not self.is_enabled():
             return {}
             
         system_prompt += "\n\nYou MUST return ONLY valid JSON. Do not wrap it in markdown block quotes like ```json ... ```. Just the raw JSON string."
         
         try:
-            # Some providers like native OpenAI support response_format={"type": "json_object"}
-            # But since we are using NVIDIA API (or others), we rely on strict prompting.
+            extra_body = {}
+            if "nemotron" in self.settings.llm_model.lower():
+                extra_body = {"chat_template_kwargs": {"enable_thinking": True}, "reasoning_budget": 16384}
+
             completion = self.client.chat.completions.create(
                 model=self.settings.llm_model,
                 messages=[
@@ -66,7 +74,9 @@ class LLMClient:
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=temperature,
-                max_tokens=512,
+                max_tokens=16384,
+                top_p=0.95,
+                extra_body=extra_body,
                 stream=False
             )
             content = completion.choices[0].message.content

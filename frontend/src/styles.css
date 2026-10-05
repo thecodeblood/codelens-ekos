@@ -1,0 +1,131 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-on-primary: var(--primary-foreground);
+  --color-primary-container: var(--primary-container);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-foreground: var(--tertiary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-on-surface: var(--foreground);
+  --color-on-surface-variant: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-error: var(--destructive);
+  --color-surface-container-low: var(--surface);
+  --color-surface-container-lowest: var(--background);
+  --color-outline-variant: var(--border);
+  --color-primary-fixed-dim: var(--primary);
+  --color-border: var(--border);
+  --color-outline: var(--muted-foreground);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+:root, .dark {
+  --radius: 0.75rem;
+  --background: oklch(0.17 0.02 265);
+  --foreground: oklch(0.97 0.01 250);
+  --surface: oklch(0.19 0.02 265);
+  --surface-container: oklch(0.22 0.02 265);
+  --surface-container-highest: oklch(0.26 0.025 265);
+  --card: oklch(0.22 0.02 265);
+  --card-foreground: oklch(0.97 0.01 250);
+  --popover: oklch(0.22 0.02 265);
+  --popover-foreground: oklch(0.97 0.01 250);
+  --primary: oklch(0.66 0.21 275);
+  --primary-foreground: oklch(0.99 0.005 250);
+  --primary-container: oklch(0.38 0.12 275);
+  --secondary: oklch(0.82 0.16 200);
+  --secondary-foreground: oklch(0.15 0.02 260);
+  --tertiary: oklch(0.78 0.16 55);
+  --tertiary-foreground: oklch(0.15 0.02 260);
+  --muted: oklch(0.26 0.02 265);
+  --muted-foreground: oklch(0.72 0.02 260);
+  --accent: oklch(0.26 0.02 265);
+  --accent-foreground: oklch(0.97 0.01 250);
+  --destructive: oklch(0.65 0.22 25);
+  --destructive-foreground: oklch(0.99 0.005 250);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.66 0.21 275);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html, body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+}
+
+@utility glass-card {
+  background-color: color-mix(in oklab, white 4%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in oklab, white 8%, transparent);
+}
+
+@utility glow-primary {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--primary) 40%, transparent),
+    0 10px 40px -10px color-mix(in oklab, var(--primary) 60%, transparent),
+    0 0 60px -10px color-mix(in oklab, var(--primary) 50%, transparent);
+}
+
+@utility hero-gradient {
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 0%, color-mix(in oklab, var(--primary) 25%, transparent), transparent 70%),
+    radial-gradient(ellipse 40% 40% at 80% 30%, color-mix(in oklab, var(--secondary) 15%, transparent), transparent 70%);
+}
+
+@utility font-mono-code {
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+@utility glass-panel-accent {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--primary) 6%, transparent),
+    color-mix(in oklab, white 3%, transparent)
+  );
+  backdrop-filter: blur(14px);
+  border: 1px solid color-mix(in oklab, var(--primary) 18%, transparent);
+}
+
+@utility ai-glow {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--primary) 25%, transparent),
+    0 8px 40px -12px color-mix(in oklab, var(--primary) 55%, transparent);
+}

@@ -12,3 +12,4 @@ class CitationBuilder:
                 "extraction_method": n.get("extraction_method", "ast")
             })
         return citations
+    print("Hello, World")
